@@ -4,3 +4,4 @@ pymongo
 python-dotenv
 scikit-learn
 pydantic[email]
+passlib[bcrypt]
