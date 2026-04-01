@@ -1,79 +1,195 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-background text-gray-200 antialiased min-h-screen relative overflow-x-hidden;
-  }
-  
-  /* Deep layered radial background */
-  body::before {
-    content: '';
-    @apply fixed inset-0 -z-10 bg-[radial-gradient(circle_at_15%_50%,rgba(99,102,241,0.08)_0%,transparent_50%),radial-gradient(circle_at_85%_30%,rgba(168,85,247,0.08)_0%,transparent_50%)];
-  }
-
-  /* Subtle Noise Texture overlay */
-  body::after {
-    content: '';
-    @apply fixed inset-0 -z-10 opacity-[0.03] pointer-events-none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  }
+/* ─── CSS Variables ──────────────────────────────────── */
+:root {
+  --bg-color: #0a0f1a;
+  --card-color: #10141A;
+  --text-color: #e5e7eb;
+  --muted-color: #9ca3af;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --primary-color: #a78bfa;
+  --accent-color: #8b5cf6;
+  --nav-bg: rgba(10, 15, 26, 0.92);
+  --input-bg: rgba(0, 0, 0, 0.45);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-text: #ffffff;
+  --input-placeholder: #6b7280;
+  --input-label: #9ca3af;
 }
 
+body.light {
+  --bg-color: #f1f5f9;
+  --card-color: #ffffff;
+  --text-color: #1e293b;
+  --muted-color: #64748b;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --primary-color: #7c3aed;
+  --accent-color: #7c3aed;
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-text: #1e293b;
+  --input-placeholder: #94a3b8;
+  --input-label: #64748b;
+}
+
+/* ─── Base ──────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── Gradient ───────────────────────────────────────── */
+.bg-gradient-premium {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+}
+
+/* ─── Components ────────────────────────────────────── */
 @layer components {
+
   /* Buttons */
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 outline-none;
   }
-  
+
   .btn-primary {
-    @apply bg-gradient-premium text-white shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:shadow-[0_6px_25px_rgba(168,85,247,0.5)] hover:scale-[1.02] active:scale-[0.98];
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    @apply text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] hover:opacity-90;
   }
-  
+
   .btn-outline {
-    @apply border border-border bg-surface text-gray-200 hover:bg-surface-hover hover:border-gray-500 hover:-translate-y-0.5;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 outline-none;
+    background-color: var(--card-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
   }
-  
+
+  .btn-outline:hover {
+    border-color: var(--accent-color);
+  }
+
   .btn-icon {
-    @apply p-2 rounded-lg text-gray-400 hover:text-white hover:bg-surface-hover transition-colors;
+    @apply p-2 rounded-lg transition-colors;
+    color: var(--muted-color);
   }
 
-  /* Forms */
-  .input-field {
-    @apply w-full bg-black/40 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-500 transition-all duration-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 backdrop-blur-sm;
-  }
-  
-  .label-text {
-    @apply block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wider text-xs;
+  .btn-icon:hover {
+    color: var(--text-color);
   }
 
-  /* Structural */
+  /* Glass Panel */
   .glass-panel {
-    @apply bg-surface backdrop-blur-xl border border-border rounded-2xl shadow-lg;
+    @apply rounded-2xl shadow-lg;
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
   }
 
-  /* Text Gradients */
-  .text-gradient {
-    @apply bg-gradient-premium bg-clip-text text-transparent;
+  /* Universal input-field */
+  .input-field {
+    @apply w-full rounded-xl px-4 pt-6 pb-2 text-sm font-medium transition-all duration-200 outline-none;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--input-text);
+  }
+
+  .input-field::placeholder {
+    color: var(--input-placeholder);
+  }
+
+  .input-field:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  }
+
+  /* Floating label partner of input-field */
+  .floating-label {
+    @apply absolute left-4 top-2 text-[10px] font-semibold uppercase tracking-wider pointer-events-none transition-all duration-200;
+    color: var(--accent-color);
+  }
+
+  /* When peer (input) shows placeholder → label drops to mid position */
+  .peer:placeholder-shown ~ .floating-label {
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.875rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--input-placeholder);
+  }
+
+  /* When peer is focused → label floats back up */
+  .peer:not(:placeholder-shown) ~ .floating-label,
+  .peer:focus ~ .floating-label {
+    top: 0.4rem;
+    transform: translateY(0);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-color);
   }
 }
 
-/* Custom Recharts Tooltip */
-.recharts-tooltip-wrapper {
-  outline: none !important;
+/* ─── Surface Utilities ─────────────────────────────── */
+.bg-surface {
+  background-color: var(--card-color);
 }
 
+.bg-surface-hover {
+  background-color: var(--card-color);
+  opacity: 0.9;
+}
+
+.border-border {
+  border-color: var(--border-color);
+}
+
+.text-primary {
+  color: var(--primary-color);
+}
+
+/* ─── Chart Tooltip ─────────────────────────────────── */
 .custom-chart-tooltip {
-  @apply bg-gray-900/90 backdrop-blur-md border border-border rounded-xl p-3 shadow-xl;
+  background-color: var(--card-color);
+  @apply rounded-xl p-3 shadow-xl;
+  border: 1px solid var(--border-color);
 }
 
 .custom-chart-tooltip .label {
-  @apply text-gray-400 text-xs uppercase tracking-wider mb-1;
+  color: var(--muted-color);
+  @apply text-xs uppercase tracking-wider mb-1;
 }
 
 .custom-chart-tooltip .value {
-  @apply text-white text-lg font-bold font-mono;
+  color: var(--text-color);
+  @apply text-lg font-bold font-mono;
+}
+
+/* ─── Skeleton Loader ───────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+.skeleton {
+  border-radius: 8px;
+  background: var(--border-color);
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 99px;
 }

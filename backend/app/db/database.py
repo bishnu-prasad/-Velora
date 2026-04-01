@@ -10,3 +10,4 @@ client = MongoClient(MONGO_URL)
 
 db = client["expense_db"]
 expense_collection = db["expenses"]
+users_collection = db["users"]

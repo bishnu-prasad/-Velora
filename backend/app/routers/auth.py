@@ -2,39 +2,47 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from app.schemas.user import UserCreate
 from app.core.security import hash_password, verify_password, create_access_token
+from app.db.database import users_collection
 
 router = APIRouter()
 
-# TEMP storage (later DB)
-fake_users_db = {}
-
 @router.post("/signup")
 def signup(user: UserCreate):
-    if user.email in fake_users_db:
+    email = user.email.strip().lower()
+    password = user.password
+
+    existing_user = users_collection.find_one({"email": email})
+    if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
 
-    hashed_pwd = hash_password(user.password)
+    hashed_pwd = hash_password(password)
 
-    fake_users_db[user.email] = hashed_pwd
+    users_collection.insert_one({
+        "email": email,
+        "password": hashed_pwd
+    })
 
     return {
         "message": "User registered successfully",
-        "email": user.email
+        "email": email
     }
 
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    email = form_data.username
+    email = form_data.username.strip().lower()
     password = form_data.password
 
-    if email not in fake_users_db:
-        raise HTTPException(status_code=400, detail="User not found")
+    user = users_collection.find_one({"email": email})
 
-    stored_password = fake_users_db[email]
+    print("LOGIN EMAIL:", email)
+    print("USER FOUND:", user)
 
-    if not verify_password(password, stored_password):
-        raise HTTPException(status_code=400, detail="Invalid password")
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    if not verify_password(password, user["password"]):
+        raise HTTPException(status_code=400, detail="Invalid email or password")
 
     token = create_access_token({"sub": email})
 

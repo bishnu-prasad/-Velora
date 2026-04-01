@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 
 const Signup = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError]               = useState('');
+  const [success, setSuccess]           = useState('');
+  const [loading, setLoading]           = useState(false);
   const navigate = useNavigate();
+
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const isLight = theme === 'light';
+
+  useEffect(() => {
+    document.body.classList.remove('light', 'dark');
+    document.body.classList.add(theme);
+  }, [theme]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -24,114 +33,181 @@ const Signup = () => {
 
     try {
       await api.post('/signup', { email, password });
-      setSuccess('Account created successfully! Redirecting...');
+      setSuccess('Account created! Redirecting...');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      let errorMessage = 'Failed to create account. Please try again.';
+      let msg = 'Failed to create account. Please try again.';
       if (err.response?.data?.detail) {
-        errorMessage = Array.isArray(err.response.data.detail) 
-          ? err.response.data.detail[0].msg 
+        msg = Array.isArray(err.response.data.detail)
+          ? err.response.data.detail[0].msg
           : err.response.data.detail;
       }
-      setError(errorMessage);
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
-      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-pink-500/10 rounded-full blur-[100px] mix-blend-screen pointer-events-none"></div>
+    <div
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden transition-colors duration-300"
+      style={{ backgroundColor: 'var(--bg-color)' }}
+    >
+      {/* Theme toggle */}
+      <button
+        onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+        className="absolute top-6 right-6 w-9 h-9 rounded-full flex items-center justify-center border transition-all z-20"
+        style={{
+          backgroundColor: 'var(--card-color)',
+          borderColor: 'var(--border-color)',
+          color: 'var(--muted-color)',
+        }}
+        aria-label="Toggle theme"
+      >
+        {isLight ? '🌙' : '☀️'}
+      </button>
 
-      <motion.div 
+      {/* Background glows (dark only) */}
+      {!isLight && (
+        <>
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-pink-600/10 rounded-full blur-[100px] pointer-events-none" />
+        </>
+      )}
+
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="glass-panel w-full max-w-[440px] p-8 md:p-10 relative z-10"
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="w-full max-w-[440px] relative z-20"
+        style={{
+          backgroundColor: 'var(--card-color)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '1.25rem',
+          boxShadow: isLight
+            ? '0 8px 32px rgba(0,0,0,0.08)'
+            : '0 20px 60px rgba(0,0,0,0.5)',
+        }}
       >
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-premium opacity-80"></div>
+        {/* Top accent bar */}
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-premium opacity-80 rounded-tl-[1.25rem] rounded-tr-[1.25rem]" />
 
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-gradient-premium mb-6 shadow-[0_0_30px_rgba(139,92,246,0.4)]">
-            <Sparkles size={32} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Create Account</h1>
-          <p className="text-gray-400">Join thousands tracking expenses intelligently</p>
-        </div>
-        
-        <AnimatePresence>
-          {error && (
-            <motion.div 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="mb-6 overflow-hidden"
+        <div className="p-8 md:p-10">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-gradient-premium mb-6 shadow-[0_0_30px_rgba(139,92,246,0.4)]">
+              <Sparkles size={32} className="text-white" />
+            </div>
+            <h1
+              className="text-3xl font-bold mb-2 tracking-tight"
+              style={{ color: 'var(--text-color)' }}
             >
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                {error}
-              </div>
-            </motion.div>
-          )}
-          {success && (
-            <motion.div 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="mb-6 overflow-hidden"
-            >
-              <div className="bg-green-500/10 border border-green-500/20 text-green-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                {success}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        <form onSubmit={handleSignup} className="flex flex-col gap-5">
-          <div className="relative">
-            <input 
-              type="email" 
-              id="email" 
-              className="peer input-field placeholder-transparent"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-              autoComplete="username"
-              required
-            />
-            <label htmlFor="email" className="absolute left-4 top-2 text-[10px] font-semibold text-primary uppercase tracking-wider transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-3.5 peer-placeholder-shown:font-normal peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:text-primary">
-              Email Address
-            </label>
+              Create Account
+            </h1>
+            <p style={{ color: 'var(--muted-color)' }}>
+              Join{' '}
+              <span className="font-semibold" style={{ color: 'var(--accent-color)' }}>
+                Velora
+              </span>{' '}
+              and track expenses intelligently
+            </p>
           </div>
-          
-          <div className="relative mb-4">
-            <input 
-              type="password" 
-              id="password" 
-              className="peer input-field placeholder-transparent"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="new-password"
-              required
-            />
-            <label htmlFor="password" className="absolute left-4 top-2 text-[10px] font-semibold text-primary uppercase tracking-wider transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-3.5 peer-placeholder-shown:font-normal peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:text-primary">
-              Choose Password
-            </label>
-          </div>
-          
-          <button type="submit" className="btn btn-primary w-full py-3.5 text-base" disabled={loading}>
-            {loading ? <Loader2 size={20} className="animate-spin text-white" /> : (
-              <>Sign Up <ArrowRight size={18} /></>
+
+          {/* Alerts */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="mb-6 overflow-hidden"
+              >
+                <div className="bg-red-500/10 border border-red-500/30 text-red-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                  {error}
+                </div>
+              </motion.div>
             )}
-          </button>
-        </form>
-        
-        <div className="mt-8 text-center text-sm text-gray-400">
-          Already have an account? <Link to="/login" className="text-primary hover:text-white transition-colors font-medium">Sign in</Link>
+            {success && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="mb-6 overflow-hidden"
+              >
+                <div className="bg-green-500/10 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+                  {success}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Form */}
+          <form onSubmit={handleSignup} className="flex flex-col gap-5">
+            <div className="relative">
+              <input
+                type="email"
+                id="signup-email"
+                className="peer input-field"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                autoComplete="username"
+                required
+              />
+              <label htmlFor="signup-email" className="floating-label">
+                Email Address
+              </label>
+            </div>
+
+            <div className="relative mb-4">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="signup-password"
+                className="peer input-field pr-12"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoComplete="new-password"
+                required
+              />
+              <label htmlFor="signup-password" className="floating-label">
+                Choose Password
+              </label>
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 transition-colors z-10"
+                style={{ color: 'var(--muted-color)' }}
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary w-full py-3.5 text-base"
+              disabled={loading}
+            >
+              {loading
+                ? <Loader2 size={20} className="animate-spin text-white" />
+                : <><span>Sign Up</span> <ArrowRight size={18} /></>
+              }
+            </button>
+          </form>
+
+          <div className="mt-8 text-center text-sm" style={{ color: 'var(--muted-color)' }}>
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="font-semibold transition-colors hover:underline"
+              style={{ color: 'var(--accent-color)' }}
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
       </motion.div>
     </div>
