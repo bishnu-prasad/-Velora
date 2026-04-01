@@ -10,9 +10,14 @@ app = FastAPI()
 
 from fastapi.middleware.cors import CORSMiddleware
 
+origins = [
+    "http://localhost:3000",
+    "https://velora-ten-gules.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 🔥 FORCE ALLOW EVERYTHING
+    allow_origins=origins,  # ✅ secure
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
