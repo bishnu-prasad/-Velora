@@ -12,7 +12,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://velora.vercel.app",  # (we’ll use later)
+        "https://velora-ten-gules.vercel.app",  # (we’ll use later)
     ],
     allow_credentials=True,
     allow_methods=["*"],
