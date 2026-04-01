@@ -1,5 +1,5 @@
 
-# 🚀 ExpenseAI — AI-Powered Expense Tracker
+# 🚀 Velora — Smart Expense Tracking for Modern India
 
 An intelligent full-stack expense tracking web application that automatically categorizes user expenses using Machine Learning.
 
