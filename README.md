@@ -15,7 +15,7 @@ An intelligent full-stack expense tracking web application that automatically ca
 
 ---
 
-## ✨ Features
+##  Features
 
 - 🔐 User Authentication (Signup/Login)
 - 💸 Add & manage expenses
